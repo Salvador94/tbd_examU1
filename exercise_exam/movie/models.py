@@ -23,7 +23,7 @@ GENRE_CHOICES = (
 
 ## Custom QuerySet Methods
 
-class MovieModelQuery(models.query.QuerySet):
+class MovieModelQuerySet(models.query.QuerySet):
     def active(self):
         return self.filter(active=True)
 
@@ -35,7 +35,7 @@ class MovieModelManager(models.Manager):
     def get_queryset(self):
         return MovieModelQuerySet(self.model, using=self._db)
 
-    def all(se  , *args, **kwargs):
+    def all(self, *args, **kwargs):
         qs = super(MovieModelManager, self).all(*args, **kwargs).active()
         return qs
 
@@ -50,6 +50,8 @@ class Movie(models.Model):
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add = True)
 
+    objects = MovieModelManager()
+
     def __str__(self):
         return smart_text(self.name)
 
@@ -63,22 +65,22 @@ class Movie(models.Model):
 
     @property
     def age(self):
-            if self.created == 'Create':
+            if self.genre!="":
                 now = datetime.now()
                 created = datetime.combine(
                                self.created,
-                               datetime.now().min.time()
+                               self.updated.time()
                                )
-            try:
-                difference = now - created
-                print(difference)
-            except:
-                difference = "No hay creacion"
+                try:
+                    difference = now - created
+                    print(difference)
+                except:
+                    difference = "No hay creacion"
 
-            if difference <= datetime.timedelta(minutes=10):
-                print(difference)
-                return "Ahora"
-            return "{time} ago".format(time=timestamp(created).split(",")[0])
+                if difference <= datetime.timedelta(minutes=10):
+                    print(difference)
+                    return "Ahora"
+                return "{time} ago".format(time=timestamp(created).split(",")[0])
 
 
 ## Save y pre_save
